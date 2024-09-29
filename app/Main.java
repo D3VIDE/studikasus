@@ -8,6 +8,9 @@ import enrollment.Base;
 import exports.ExportService;
 import exports.JsonExportService;
 import students.Student;
+import Notifw.CourseNotifier;
+import Notifw.StudentNotifier;
+
 
 import java.util.Scanner;
 
@@ -15,14 +18,48 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         ExportService exportService = new JsonExportService();
-        Student student = new Student("Alice", "1001");
-
+        CourseNotifier courseNotifier = new CourseNotifier();
         CourseCreator courseCreator = new CourseCreator();
-        CourseManager courseManager = new CourseManager(courseCreator);
+
+        System.out.println("Masukkan nama siswa:");
+        String studentName = scanner.nextLine();
+        System.out.println("Masukkan ID siswa:");
+        String studentId = scanner.nextLine();
+
+
+        Student mainstudent = new Student(studentName, studentId);
+
+        System.out.println("Masukkan jumlah siswa yang akan menerima notifikasi:");
+        int numStudents = scanner.nextInt();
+        scanner.nextLine();
+
+
+        for (int i = 0; i < numStudents; i++) {
+            System.out.println("Masukkan nama siswa ke-" + (i + 1) + ":");
+            StudentNotifier student = new StudentNotifier(studentName);
+            courseNotifier.addObserver(student);
+        }
+
+
+        System.out.println("Masukkan ID kursus:");
+        String courseId = scanner.nextLine();
+        System.out.println("Masukkan nama kursus:");
+        String courseName = scanner.nextLine();
+
+
+        CourseManager courseManager = new CourseManager(courseCreator, courseNotifier);
+
+
+        courseManager.createNewCourse(courseId, courseName);
+
+
+
+
 
         System.out.println("1. Enroll in Course");
         System.out.println("2. Complete Course");
         System.out.println("3. Export Transcript");
+
 
         int choice = scanner.nextInt();
         switch (choice) {
@@ -38,16 +75,16 @@ public class Main {
                     course = courseManager.constructOnsiteCourse("CS101", "Intro to CS", location);
                 }
 
-                Base enrollCommand = new EnrollStudent(student, course);
+                Base enrollCommand = new EnrollStudent(mainstudent, course);
                 enrollCommand.execute();
                 break;
             case 2:
                 System.out.println("Enter grade for the course: ");
                 double grade = scanner.nextDouble();
-                student.completeCourse(courseCreator.build(), grade);  // Complete the course using builder
+                mainstudent.completeCourse(courseCreator.build(), grade);  // Complete the course using builder
                 break;
             case 3:
-                String transcript = exportService.exportTranscript(student.getTranscript());
+                String transcript = exportService.exportTranscript(mainstudent.getTranscript());
                 System.out.println("Exported Transcript: " + transcript);
                 break;
             default:
@@ -55,5 +92,6 @@ public class Main {
         }
     }
 }
+
 
 
