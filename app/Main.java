@@ -53,9 +53,6 @@ public class Main {
         courseManager.createNewCourse(courseId, courseName);
 
 
-
-
-
         System.out.println("1. Enroll in Course");
         System.out.println("2. Complete Course");
         System.out.println("3. Export Transcript");
